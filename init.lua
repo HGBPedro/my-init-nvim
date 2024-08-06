@@ -12,6 +12,11 @@ vim.opt.showmode = false
 vim.opt.termguicolors = true
 vim.opt.clipboard = 'unnamedplus'
 
+vim.opt.autoindent = true
+vim.opt.expandtab = true
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 4
+
 vim.cmd 'colorscheme silmarillion'
 
 local vim = vim
@@ -25,6 +30,7 @@ Plug('nvim-telescope/telescope.nvim')
 Plug('norcalli/nvim-colorizer.lua')
 Plug('nvim-treesitter/nvim-treesitter', { ['do'] = ':TSUpdate' }) 
 Plug('neovim/nvim-lspconfig')
+Plug('ms-jpq/coq_nvim')
 vim.call('plug#end')
 
 local lualine_silmarillion = require('colors.lualine_silmarillion')
@@ -60,7 +66,22 @@ require('nvim-treesitter.configs').setup({
 		additional_vim_regex_highlighting = true
 	}
 })
-require('lspconfig').eslint.setup({})
+
+vim.g.coq_settings = { 
+	auto_start = 'shut-up',
+	keymap = { eval_snips = '<leader>j' }
+}
+local lsp = require('lspconfig')
+local coq = require('coq')
+
+lsp.tsserver.setup(coq.lsp_ensure_capabilities({
+	cmd = { "typescript-language-server", "--stdio" },
+	filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
+	init_options = {
+  		hostInfo = "neovim"
+	},
+	single_file_support = true
+}))
 
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
